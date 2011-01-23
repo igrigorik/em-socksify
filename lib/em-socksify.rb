@@ -1,5 +1,3 @@
-module Em
-  module Socksify
-    # Your code goes here...
-  end
-end
+require 'eventmachine'
+
+require 'em-socksify/socksify'
