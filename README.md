@@ -44,4 +44,4 @@ For SOCKS proxies which require authentication, use:
 # License
 
 (The MIT License)
-Copyright © 2011 Ilya Grigorik%
+Copyright © 2011 Ilya Grigorik
