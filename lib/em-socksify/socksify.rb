@@ -58,10 +58,7 @@ module EventMachine
 
             elsif method == 2
               @socks_state = :authenticating
-              credentials = @opts.proxy[:authorization]
-
-              username, password = credentials
-              send_data [5, username.length, username, password.length, password].pack('CCA*CA*')
+              send_data [5, @username.length, @username, @password.length, @password].pack('CCA*CA*')
             end
 
           else
