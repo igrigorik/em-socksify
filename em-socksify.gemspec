@@ -4,13 +4,13 @@ require "em-socksify/version"
 
 Gem::Specification.new do |s|
   s.name        = "em-socksify"
-  s.version     = Em::Socksify::VERSION
+  s.version     = EventMachine::Socksify::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["TODO: Write your name"]
-  s.email       = ["TODO: Write your email address"]
-  s.homepage    = "http://rubygems.org/gems/em-socksify"
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.authors     = ["Ilya Grigorik"]
+  s.email       = ["ilya@igvita.com"]
+  s.homepage    = "http://github.com/igrigorik/em-socksify"
+  s.summary     = "EventMachine SOCKSify shim: adds SOCKS support to any protocol"
+  s.description = s.summary
 
   s.rubyforge_project = "em-socksify"
 
