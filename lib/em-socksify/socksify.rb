@@ -36,9 +36,9 @@ module EventMachine
       begin
         # TODO: Implement address types for IPv6 and Domain
         # TODO: resolve domain through the proxy
-        send_data [1, Socket.gethostbyname(@host).last].pack('CA4n')
+        send_data [1, Socket.gethostbyname(@host).last].pack('CA4')
       rescue
-        send_data [3, @host.size, @host].pack('CCA4n')
+        send_data [3, @host.size, @host].pack('CCA*')
       end
 
       send_data [@port].pack('n')
