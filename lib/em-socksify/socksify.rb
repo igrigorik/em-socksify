@@ -31,14 +31,17 @@ module EventMachine
     end
 
     def send_socks_connect_request
-      begin
-        # TO-DO: Implement address types for IPv6 and Domain
-        ip_address = Socket.gethostbyname(@host).last
-        send_data [5, 1, 0, 1, ip_address, @port].flatten.pack('CCCCA4n')
+      send_data [5, 1, 0].pack('CCC')
 
+      begin
+        # TODO: Implement address types for IPv6 and Domain
+        # TODO: resolve domain through the proxy
+        send_data [1, Socket.gethostbyname(@host).last].pack('CA4n')
       rescue
-        fail("could not resolve host")
+        send_data [3, @host.size, @host].pack('CCA4n')
       end
+
+      send_data [@port].pack('n')
     end
 
     private
