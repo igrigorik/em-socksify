@@ -1,4 +1,4 @@
-class SOCKSError < Exception
+class EventMachine::Socksify::SOCKSError < Exception
   def self.define (message)
     Class.new(self) {
       def initialize
@@ -7,14 +7,14 @@ class SOCKSError < Exception
     }
   end
 
-  ServerFailure           = SOCKSError.define('general SOCKS server failure')
-  NotAllowed              = SOCKSError.define('connection not allowed by ruleset')
-  NetworkUnreachable      = SOCKSError.define('Network unreachable')
-  HostUnreachable         = SOCKSError.define('Host unreachable')
-  ConnectionRefused       = SOCKSError.define('Connection refused')
-  TTLExpired              = SOCKSError.define('TTL expired')
-  CommandNotSupported     = SOCKSError.define('Command not supported')
-  AddressTypeNotSupported = SOCKSError.define('Address type not supported')
+  ServerFailure           = define('general SOCKS server failure')
+  NotAllowed              = define('connection not allowed by ruleset')
+  NetworkUnreachable      = define('Network unreachable')
+  HostUnreachable         = define('Host unreachable')
+  ConnectionRefused       = define('Connection refused')
+  TTLExpired              = define('TTL expired')
+  CommandNotSupported     = define('Command not supported')
+  AddressTypeNotSupported = define('Address type not supported')
 
   def self.for_response_code(code)
     case code.is_a?(String) ? code.ord : code
