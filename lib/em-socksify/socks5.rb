@@ -88,7 +88,7 @@ module EventMachine::Socksify::SOCKS5
       bind_addr = @socks_data[min_size ... (min_size + size)]
 
       socks_unhook(case @socks_data[3].ord
-        when 1 then bind_addr.bytes.to_a.join(?.)
+        when 1 then bind_addr.bytes.to_a.join('.')
         when 3 then bind_addr
         when 4 then # TODO: yeah, I'm a lazy italian
       end)
