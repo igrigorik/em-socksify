@@ -1,4 +1,6 @@
-class EventMachine::Socksify::SOCKSError < Exception
+module EventMachine; module Socksify
+
+class SOCKSError < Exception
   def self.define (message)
     Class.new(self) {
       def initialize
@@ -30,3 +32,5 @@ class EventMachine::Socksify::SOCKSError < Exception
     end
   end
 end
+
+end; end

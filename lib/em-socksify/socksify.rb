@@ -1,4 +1,6 @@
-module EventMachine::Socksify
+module EventMachine
+
+module Socksify
   def socksify(host, port, username = nil, password = nil, version = 5, &blk)
     @socks_target_host = host
     @socks_target_port = port
@@ -43,4 +45,6 @@ module EventMachine::Socksify
 
     socks_parse_response
   end
+end
+
 end

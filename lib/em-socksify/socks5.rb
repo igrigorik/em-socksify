@@ -1,4 +1,6 @@
-module EventMachine::Socksify::SOCKS5
+module EventMachine; module Socksify
+
+module SOCKS5
   def socks_send_handshake
     # Method Negotiation as described on
     # http://www.faqs.org/rfcs/rfc1928.html Section 3
@@ -103,3 +105,5 @@ module EventMachine::Socksify::SOCKS5
     methods
   end
 end
+
+end; end
