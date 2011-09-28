@@ -1,125 +1,156 @@
+require 'em-socksify/errors'
+
 module EventMachine
   module Socksify
+    def socksify(host, port, username = nil, password = nil, version = 5, &blk)
+      @socks_target_host = host
+      @socks_target_port = port
+      @socks_username = username
+      @socks_password = password
+      @socks_version = version
+      @socks_callback = blk
+      @socks_data = ''
 
-    def socksify(host, port, username = nil, password = nil, &blk)
-      @host = host
-      @port = port
-      @username = username
-      @password = password
-      @callback = blk
+      socks_hook
+      socks_send_handshake
+    end
+
+    def socks_hook
+      if @socks_version == 5
+        extend SOCKS5
+      else
+        raise ArgumentError, 'SOCKS version unsupported'
+      end
 
       class << self
-        def receive_data(data); proxy_receive_data(data); end
+        alias receive_data socks_receive_data
+      end
+    end
+
+    def socks_unhook(ip = nil)
+      class << self
+        remove_method :receive_data
       end
 
-      send_socks_handshake
+      callback = @socks_callback
+
+      instance_variables.each {|name|
+        remove_instance_variable name if name.to_s.start_with?('@socks_')
+      }
+
+      callback.call(ip)
     end
 
-    def proxy_receive_data(data)
-      @data ||= ''
-      @data << data
-      parse_socks_response
+    def socks_receive_data(data)
+      @socks_data << data
+
+      socks_parse_response
     end
 
-    def send_socks_handshake
-      # Method Negotiation as described on
-      # http://www.faqs.org/rfcs/rfc1928.html Section 3
-      @socks_state = :method_negotiation
+    module SOCKS5
+      def socks_send_handshake
+        # Method Negotiation as described on
+        # http://www.faqs.org/rfcs/rfc1928.html Section 3
+        @socks_state = :method_negotiation
 
-      methods = socks_methods
-      send_data [5, methods.size].pack('CC') + methods.pack('C*')
-    end
-
-    def send_socks_connect_request
-      send_data [5, 1, 0].pack('CCC')
-
-      begin
-        # TODO: Implement address types for IPv6 and Domain
-        # TODO: resolve domain through the proxy
-        send_data [1, Socket.gethostbyname(@host).last].pack('CA4')
-      rescue
-        send_data [3, @host.size, @host].pack('CCA*')
+        socks_methods.tap {|methods|
+          send_data [5, methods.size].pack('CC') + methods.pack('C*')
+        }
       end
 
-      send_data [@port].pack('n')
-    end
+      def socks_send_connect_request
+        @socks_state = :connecting
 
-    private
+        send_data [5, 1, 0].pack('CCC')
+
+        if matches = @socks_target_host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)
+          send_data "\xF1\x00\x01" + matches.to_a[1 .. -1].map { |s| s.to_i }.pack('CCCC')
+        elsif @socks_target_host =~ /^[:0-9a-f]+$/
+          raise SOCKSError, 'TCP/IPv6 over SOCKS is not yet supported (inet_pton missing in Ruby & not supported by Tor'
+        else
+          send_data [3, @socks_target_host.size, @socks_target_host].pack('CCA*')
+        end
+
+        send_data [@socks_target_port].pack('n')
+      end
+
+      def socks_send_authentication
+        @socks_state = :authenticating
+
+        send_data [5,
+          @socks_username.length, @socks_username,
+          @socks_password.length, @socks_password
+        ].pack('CCA*CA*')
+      end
+
+      private
 
       # parses socks 5 server responses as specified
       # on http://www.faqs.org/rfcs/rfc1928.html
-      def parse_socks_response
-        if @socks_state == :method_negotiation
-          return if not @data.size >= 2
+      def socks_parse_response
+        case @socks_state
+        when :method_negotiation
+          return unless @socks_data.size >= 2
 
-          _, method = @data.slice!(0,2).unpack('CC')
+          _, method = @socks_data.slice!(0, 2).unpack('CC')
 
           if socks_methods.include?(method)
-            if method == 0
-              @socks_state = :connecting
-              send_socks_connect_request
-
-            elsif method == 2
-              @socks_state = :authenticating
-              send_data [5, @username.length, @username, @password.length, @password].pack('CCA*CA*')
+            case method
+            when 0 then socks_send_connect_request
+            when 2 then socks_send_authentication
             end
-
           else
-            fail("proxy did not accept method")
+            raise SOCKSError, 'proxy did not accept method'
           end
 
-        elsif @socks_state == :authenticating
-          return if not @data.size >= 2
+        when :authenticating
+          return unless @socks_data.size >= 2
 
-          _, status_code = @data.slice!(0, 2).unpack('CC')
+          socks_version, status_code = @socks_data.slice!(0, 2).unpack('CC')
 
-          if status_code == 0 # success
-            @socks_state = :connecting
-            send_socks_connect_request
+          raise SOCKSError, "SOCKS version 5 not supported" unless socks_version == 5
+          raise SOCKSError, 'access denied by proxy'        unless status_code == 0
 
-          else # error
-            fail "access denied by proxy"
+          send_socks_connect_request
+
+        when :connecting
+          return unless @socks_data.size >= 2
+
+          socks_version, status_code = @socks_data.slice(0, 2).unpack('CC')
+
+          raise SOCKSError, "SOCKS version #{socks_version} is not 5" unless socks_version == 5
+          raise SOCKSError.for_response_code(status_code)             unless status_code == 0
+
+          min_size = @socks_data[3].ord == 3 ? 5 : 4
+
+          return unless @socks_data.size >= min_size
+
+          size = case @socks_data[3].ord
+            when 1 then 4
+            when 3 then @socks_data[4].ord
+            when 4 then 16
+            else raise SOCKSError.for_response_code(@socks_data[3])
           end
 
-        elsif @socks_state == :connecting
-          return if not @data.size >= 10
+          return unless @socks_data.size >= min_size + size
 
-          _, response_code, _, address_type, _, _ = @data.slice(0, 10).unpack('CCCCNn')
+          bind_addr = @socks_data[min_size ... (min_size + size)]
 
-          if response_code == 0 # success
-            @socks_state = :connected
-
-            class << self
-              remove_method :receive_data
-            end
-
-            @callback.call
-
-          else # error
-            error_messages = {
-              1 => "general socks server failure",
-              2 => "connection not allowed by ruleset",
-              3 => "network unreachable",
-              4 => "host unreachable",
-              5 => "connection refused",
-              6 => "TTL expired",
-              7 => "command not supported",
-              8 => "address type not supported"
-            }
-
-            error_message = error_messages[response_code] || "unknown error (code: #{response_code})"
-            fail "socks5 connect error: #{error_message}"
-          end
+          socks_unhook(case @socks_data[3].ord
+            when 1 then bind_addr.bytes.to_a.join(?.)
+            when 3 then bind_addr
+            when 4 then # TODO: yeah, I'm a lazy italian
+          end)
         end
       end
 
       def socks_methods
         methods = []
-        methods << 2 if !@username.nil? # 2 => Username/Password Authentication
+        methods << 2 if !@socks_username.nil? # 2 => Username/Password Authentication
         methods << 0 # 0 => No Authentication Required
 
         methods
       end
-
+    end
   end
 end

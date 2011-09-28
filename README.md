@@ -28,7 +28,7 @@ After you call socksify, the module temporarily intercepts your receive_data cal
 
 For SOCKS proxies which require authentication, use:
 
-    socksify(destination_host, destination_port, username, password)
+    socksify(destination_host, destination_port, username, password, version)
 
 
 ## Wishlist
