@@ -87,7 +87,7 @@ module SOCKS5
 
       return unless @socks_data.size >= min_size + size
 
-      bind_addr = @socks_data[min_size ... (min_size + size)]
+      bind_addr = @socks_data.slice(min_size, size)
 
       socks_unhook(case @socks_data[3].ord
         when 1 then bind_addr.bytes.to_a.join('.')
