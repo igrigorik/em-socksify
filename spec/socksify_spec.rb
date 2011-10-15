@@ -8,7 +8,7 @@ describe EventMachine do
       include EM::Socksify
 
       def connection_completed
-        socksify('google.ca', 80) do
+        socksify('google.ca', 80) do |ip|
           send_data "GET / HTTP/1.1\r\nConnection:close\r\nHost: google.ca\r\n\r\n"
         end
       end
