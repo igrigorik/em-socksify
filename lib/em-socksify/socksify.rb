@@ -34,6 +34,22 @@ module EventMachine
       @socks_callback.call(ip)
     end
 
+    def socks_error?
+      @socks_error
+    end
+
+    def socks_error (exc)
+      @socks_error = true
+
+      if @socks_callback
+        @socks_callback.call(exc)
+
+        true
+      else
+        false
+      end
+    end
+
     def socks_receive_data(data)
       @socks_data << data
       socks_parse_response
