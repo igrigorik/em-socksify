@@ -11,6 +11,13 @@ module EventMachine
       @socks_callback = blk
       @socks_data = ''
 
+      if username.is_a? Hash
+        @socks_username     = username[:username]
+        @socks_password     = username[:password]
+        @socks_version      = username[:version]      || version
+        @socks_always_raise = username[:always_raise] || always_raise
+      end
+
       socks_hook
       socks_send_handshake
     end
