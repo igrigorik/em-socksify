@@ -1,14 +1,22 @@
 module EventMachine
 
   module Socksify
-    def socksify(host, port, username = nil, password = nil, version = 5, &blk)
+    def socksify(host, port, username = nil, password = nil, version = 5, always_raise = false, &blk)
       @socks_target_host = host
       @socks_target_port = port
       @socks_username = username
       @socks_password = password
       @socks_version = version
+      @socks_always_raise = always_raise
       @socks_callback = blk
       @socks_data = ''
+
+      if username.is_a? Hash
+        @socks_username     = username[:username]
+        @socks_password     = username[:password]
+        @socks_version      = username[:version]      || version
+        @socks_always_raise = username[:always_raise] || always_raise
+      end
 
       socks_hook
       socks_send_handshake
@@ -32,6 +40,22 @@ module EventMachine
       end
 
       @socks_callback.call(ip)
+    end
+
+    def socks_error?
+      @socks_error
+    end
+
+    def socks_error (exc)
+      @socks_error = true
+
+      if @socks_callback && !@socks_always_raise
+        @socks_callback.call(exc)
+
+        true
+      else
+        false
+      end
     end
 
     def socks_receive_data(data)

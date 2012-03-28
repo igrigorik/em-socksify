@@ -100,6 +100,8 @@ module EventMachine
 
             socks_unhook(ip)
           end
+        rescue SOCKSError => e
+          socks_error(e) or raise
         end
 
         def socks_methods
