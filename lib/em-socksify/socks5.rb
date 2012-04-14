@@ -18,7 +18,7 @@ module EventMachine
         send_data [5, 1, 0].pack('CCC')
 
         if matches = @socks_target_host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)
-          send_data "\xF1\x00\x01" + matches.to_a[1 .. -1].map { |s| s.to_i }.pack('CCCC')
+          send_data "\x01" + matches.to_a[1 .. -1].map { |s| s.to_i }.pack('CCCC')
 
         elsif @socks_target_host =~ /^[:0-9a-f]+$/
           raise SOCKSError, 'TCP/IPv6 over SOCKS is not yet supported (inet_pton missing in Ruby & not supported by Tor)'
