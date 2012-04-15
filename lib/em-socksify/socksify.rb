@@ -12,10 +12,9 @@ module EventMachine
       socks_hook
       socks_send_handshake
 
-      @socks_deferable = DefaultDeferrable.new
-      @socks_deferable.callback(&blk) if blk
-      @socks_deferable.errback { |e| raise e }
-      @socks_deferable
+      @socks_deferrable = DefaultDeferrable.new
+      @socks_deferrable.callback(&blk) if blk
+      @socks_deferrable
     end
 
     def socks_hook
@@ -35,7 +34,7 @@ module EventMachine
         remove_method :receive_data
       end
 
-      @socks_deferable.succeed(ip)
+      @socks_deferrable.succeed(ip)
     end
 
     def socks_receive_data(data)
