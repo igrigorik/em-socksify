@@ -100,6 +100,8 @@ module EventMachine
 
             socks_unhook(ip)
           end
+        rescue Exception => e
+          @socks_deferable.fail(e)
         end
 
         def socks_methods

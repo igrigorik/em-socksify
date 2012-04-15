@@ -7,11 +7,15 @@ module EventMachine
       @socks_username = username
       @socks_password = password
       @socks_version = version
-      @socks_callback = blk
       @socks_data = ''
 
       socks_hook
       socks_send_handshake
+
+      @socks_deferable = DefaultDeferrable.new
+      @socks_deferable.callback(&blk) if blk
+      @socks_deferable.errback { |e| raise e }
+      @socks_deferable
     end
 
     def socks_hook
@@ -31,7 +35,7 @@ module EventMachine
         remove_method :receive_data
       end
 
-      @socks_callback.call(ip)
+      @socks_deferable.succeed(ip)
     end
 
     def socks_receive_data(data)
