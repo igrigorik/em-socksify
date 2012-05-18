@@ -24,6 +24,22 @@ EM.run do
 end
 ```
 
+```ruby
+class Handler < EM::Connection
+  def connection_completed
+    send_data "GET / HTTP/1.1\r\nConnection:close\r\nHost: google.ca\r\n\r\n"
+  end
+
+  def receive_data(data)
+    p data
+  end
+end
+
+EM.run do
+  EventMachine.connect_through [SOCKS_HOST, SOCKS_PORT], 'google.ca', 80, Handler
+end
+```
+
 What's happening here? First, we open a raw TCP connection to the SOCKS proxy (after all, all data will flow through it). Then, we provide a Handler connection class, which includes "EM::Socksify". Once the TCP connection is established, EventMachine calls the **connection_completed** method in our handler. Here, we call socksify with the actual destination host & port (address that we actually want to get to), and the module does the rest.
 
 After you call socksify, the module temporarily intercepts your receive_data callbacks, negotiates the SOCKS connection (version, authentication, etc), and then once all is done, returns the control back to your code. Simple as that.
