@@ -1,6 +1,9 @@
 module EventMachine
   module Socksify
 
+    class CONNECTError < Exception
+    end
+
     class SOCKSError < Exception
       def self.define (message)
         Class.new(self) do

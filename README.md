@@ -1,4 +1,4 @@
-# EM-Socksify: Transparent SOCKS support for any EventMachine protocol
+# EM-Socksify: Transparent proxy support for any EventMachine protocol
 
 Dealing with SOCKS proxies is pain. EM-Socksify provides a simple shim to setup & negotiate a SOCKS5 connection for any EventMachine protocol. To add SOCKS support, all you have to do is include the module and provide your destination address.
 
@@ -32,6 +32,29 @@ For SOCKS proxies which require authentication, use:
 
 ```ruby
 socksify(destination_host, destination_port, username, password, version)
+```
+
+## Example: Routing HTTPS request via a squid CONNECT proxy
+
+```ruby
+class Handler < EM::Connection
+  include EM::Connectify
+
+  def connection_completed
+    connectify('www.google.ca', 443) do
+      start_tls
+      send_data "GET / HTTP/1.1\r\nConnection:close\r\nHost: www.google.ca\r\n\r\n"
+    end
+  end
+
+  def receive_data(data)
+    p data
+  end
+end
+
+EM.run do
+  EventMachine.connect PROXY_HOST, PROXY_PORT, Handler
+end
 ```
 
 ## Wishlist
