@@ -35,4 +35,9 @@ module EventMachine
     end
 
   end
+
+  module Connectify
+    class CONNECTError < Exception
+    end
+  end
 end
