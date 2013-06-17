@@ -1,4 +1,3 @@
-
 module EventMachine
 
   module Connectify

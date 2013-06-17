@@ -1,8 +1,8 @@
-# EM-Socksify: Transparent proxy support for any EventMachine protocol
+# Transparent proxy support for any EventMachine protocol
 
-Dealing with SOCKS proxies is pain. EM-Socksify provides a simple shim to setup & negotiate a SOCKS5 connection for any EventMachine protocol. To add SOCKS support, all you have to do is include the module and provide your destination address.
+Dealing with SOCKS and HTTP proxies is a pain. EM-Socksify provides a simple ship to setup and negotiation a SOCKS / HTTP connection for any EventMachine protocol.
 
-## Example: Routing HTTP request via SOCKS5 proxy
+### Example: Routing HTTP request via SOCKS5 proxy
 
 ```ruby
 class Handler < EM::Connection
@@ -24,9 +24,9 @@ EM.run do
 end
 ```
 
-What's happening here? First, we open a raw TCP connection to the SOCKS proxy (after all, all data will flow through it). Then, we provide a Handler connection class, which includes "EM::Socksify". Once the TCP connection is established, EventMachine calls the **connection_completed** method in our handler. Here, we call socksify with the actual destination host & port (address that we actually want to get to), and the module does the rest.
+What's happening here? First, we open a raw TCP connection to the SOCKS proxy. Once the TCP connection is established, EventMachine calls the **connection_completed** method in our handler, at which point we call the helper method (**socksify**) with the actual destination and host and port (address that we actually want to get to), and the module does the rest.
 
-After you call socksify, the module temporarily intercepts your receive_data callbacks, negotiates the SOCKS connection (version, authentication, etc), and then once all is done, returns the control back to your code. Simple as that.
+socksify temporarily intercepts your receive_data callbacks, negotiates the SOCKS connection (version, authentication, etc), and then once all of that is done, returns control back to your code.
 
 For SOCKS proxies which require authentication, use:
 
@@ -34,7 +34,7 @@ For SOCKS proxies which require authentication, use:
 socksify(destination_host, destination_port, username, password, version)
 ```
 
-## Example: Routing HTTPS request via a squid CONNECT proxy
+### Example: Routing HTTPS request via a squid CONNECT proxy
 
 ```ruby
 class Handler < EM::Connection
@@ -63,17 +63,22 @@ For CONNECT proxies which require authentication, use:
 connectify(destination_host, destination_port, username, password)
 ```
 
-## Wishlist
+### Wishlist
 
 - IPV6 support
 - SOCKS4 support
 
-## Resources
+### Resources
 
 - [SOCKS on Wikipedia](http://en.wikipedia.org/wiki/SOCKS)
 - [Socksify-Ruby](https://github.com/astro/socksify-ruby) for regular Ruby TCPSocket
+- [HTTP Connect Tunneling](http://en.wikipedia.org/wiki/HTTP_tunnel#HTTP_CONNECT_Tunneling)
 
-# License
+### Contributors
+
+- [Ilya Grigorik](https://github.com/igrigorik)
+- [Conrad Irwin](https://github.com/ConradIrwin)
+
+### License
 
 (The MIT License)
-Copyright © 2011 Ilya Grigorik

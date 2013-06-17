@@ -9,8 +9,8 @@ describe EventMachine do
       include EM::Socksify
 
       def connection_completed
-        socksify('google.ca', 80) do |ip|
-          send_data "GET / HTTP/1.1\r\nConnection:close\r\nHost: google.ca\r\n\r\n"
+        socksify('google.com', 80) do |ip|
+          send_data "GET / HTTP/1.1\r\nConnection:close\r\nHost: google.com\r\n\r\n"
         end
       end
 
@@ -38,7 +38,7 @@ describe EventMachine do
       include EM::Connectify
 
       def connection_completed
-        connectify('www.google.com', 443, 'conrad', 'conrad') do
+        connectify('www.google.com', 443) do
           start_tls
           send_data "GET / HTTP/1.1\r\nConnection:close\r\nHost: www.google.com\r\n\r\n"
         end
@@ -57,7 +57,7 @@ describe EventMachine do
     end
 
     EM::run do
-      EventMachine.connect '127.0.0.1', 3128, Handler
+      EventMachine.connect '127.0.0.1', 8081, Handler
     end
 
   end

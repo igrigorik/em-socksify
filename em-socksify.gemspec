@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Ilya Grigorik"]
   s.email       = ["ilya@igvita.com"]
   s.homepage    = "http://github.com/igrigorik/em-socksify"
-  s.summary     = "EventMachine SOCKSify shim: adds SOCKS support to any protocol"
+  s.summary     = "Transparent proxy support for any EventMachine protocol"
   s.description = s.summary
 
   s.rubyforge_project = "em-socksify"
