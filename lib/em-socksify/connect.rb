@@ -20,7 +20,7 @@ module EventMachine
         end
 
         connect_unhook
-      rescue => e
+      rescue Exception => e
         @connect_deferrable.fail e
       end
     end
