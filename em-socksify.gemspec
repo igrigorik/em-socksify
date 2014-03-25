@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Ilya Grigorik"]
   s.email       = ["ilya@igvita.com"]
-  s.homepage    = "http://github.com/igrigorik/em-socksify"
+  s.homepage    = "https://github.com/igrigorik/em-socksify"
   s.summary     = "Transparent proxy support for any EventMachine protocol"
   s.description = s.summary
   s.license     = "MIT"
