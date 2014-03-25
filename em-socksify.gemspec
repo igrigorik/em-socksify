@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/igrigorik/em-socksify"
   s.summary     = "Transparent proxy support for any EventMachine protocol"
   s.description = s.summary
+  s.license     = "MIT"
 
   s.rubyforge_project = "em-socksify"
 
