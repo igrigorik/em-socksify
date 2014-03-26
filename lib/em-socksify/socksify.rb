@@ -3,7 +3,7 @@ module EventMachine
   module Socksify
     def socksify(host, port, username = nil, password = nil, version = 5, &blk)
       @socks_target_host = host
-      @socks_target_port = port
+      @socks_target_port = port || 80
       @socks_username = username
       @socks_password = password
       @socks_version = version
