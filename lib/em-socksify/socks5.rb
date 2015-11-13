@@ -67,7 +67,7 @@ module EventMachine
             raise SOCKSError, "SOCKS version 5 not supported" unless socks_version == 5
             raise SOCKSError, 'access denied by proxy'        unless status_code == 0
 
-            send_socks_connect_request
+            socks_send_connect_request
 
           when :connecting
             return unless @socks_data.size >= 2
