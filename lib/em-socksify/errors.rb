@@ -2,7 +2,7 @@ module EventMachine
   module Socksify
 
     class SOCKSError < Exception
-      def self.define (message)
+      def self.define(message)
         Class.new(self) do
           def initialize
             super(message)
